@@ -1,33 +1,21 @@
-import unzipper from 'unzipper';
+import { processZipFile } from "../services/colmapServices.js";
 
 export const colmapController = async (request, response) => {
     try {
-        console.log('colmapController hit');
-
         if (!request.file) {
             return response.status(400).json({ error: 'No file uploaded' });
         };
 
         const zipBuffer = request.file.buffer;
-        const directory = await unzipper.Open.buffer(zipBuffer);
+        const result = await processZipFile(zipBuffer);
 
-        for (const fileEntry of directory.files) {
-            if (fileEntry.type === 'File') {
-                console.log(`Extracting: ${fileEntry.path}`);
-            };
+        if (result.error) {
+            return response.status(result.status).json({ error: result.error });
         };
 
-        return response.status(200).json({ message: 'ZIP processed successfully' });
+        return response.status(result.status).json({ message: result.message });
     } catch(error) {
         console.log(error);
+        return response.status(500).json({ error: 'Server error' });
     };
 };
-
-/**
- * 
-Empty ZIP?
-
-Unsupported file types?
-
-Duplicate paths?
- */
