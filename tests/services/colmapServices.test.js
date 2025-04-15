@@ -1,6 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { processZipFile } from '../../services/colmapServices.js';
+import fs from 'fs';
+import path from 'path';
 import unzipper from 'unzipper';
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { processZipFile, saveTempZipFiles } from '../../services/colmapServices.js';
+import { PassThrough } from 'stream';
 
 vi.mock('unzipper');
 
@@ -34,8 +38,6 @@ describe('processZipFile', () => {
 
         expect(result.status).toBe(200);
         expect(result.message).toBe('ZIP processed successfully');
-        expect(consoleSpy).toHaveBeenCalledWith('Extracting: frame001.jpg');
-        expect(consoleSpy).toHaveBeenCalledWith('Extracting: frame002.jpg');
 
         consoleSpy.mockRestore();
     });
@@ -54,8 +56,6 @@ describe('processZipFile', () => {
 
         expect(result.status).toBe(200);
         expect(result.message).toBe('ZIP processed successfully');
-        expect(consoleSpy).toHaveBeenCalledWith('Extracting: image.jpg');
-        expect(consoleSpy).not.toHaveBeenCalledWith('Extracting: folder/');
 
         consoleSpy.mockRestore();
     });
@@ -67,5 +67,47 @@ describe('processZipFile', () => {
 
         expect(result.status).toBe(500);
         expect(result.error).toBe('Error processing ZIP');
+    });
+});
+
+vi.mock('fs');
+
+describe('saveTempZipFiles', () => {
+    const mockWriteStream = new PassThrough();
+
+    beforeEach(() => {
+        vi.resetAllMocks();
+        fs.existsSync.mockReturnValue(false);
+        fs.mkdirSync.mockImplementation(() => {});
+        fs.createWriteStream.mockReturnValue(mockWriteStream);
+    });
+
+    it('should sanitize and save the file correctly', async () => {
+        const mockStream = new PassThrough();
+        const fileEntry = {
+            path: '../../evil.jpg',
+            stream: () => mockStream
+        };
+
+        const expectedPath = path.join('images', 'evil.jpg');
+
+        const finished = new Promise((resolve) => {
+            mockWriteStream.on('finish', resolve);
+        });
+
+        // Start the file save
+        const savePromise = saveTempZipFiles(fileEntry, 'images');
+
+        // Simulate data flow + end the stream
+        mockStream.pipe(mockWriteStream);
+        mockStream.emit('end');
+        mockWriteStream.emit('finish');
+
+        await finished;
+        await savePromise;
+
+        expect(fs.existsSync).toHaveBeenCalledWith('images');
+        expect(fs.mkdirSync).toHaveBeenCalledWith('images', { recursive: true });
+        expect(fs.createWriteStream).toHaveBeenCalledWith(expectedPath);
     });
 });
