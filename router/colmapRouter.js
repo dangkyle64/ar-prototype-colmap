@@ -3,7 +3,7 @@ import multer from 'multer';
 import { colmapController } from '../controller/colmapController.js';
 
 const storage = multer.memoryStorage();
-const MAX_SIZE_MB = 50;
+const MAX_SIZE_MB = 100;
 const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
 const upload = multer({ 
@@ -13,8 +13,8 @@ const upload = multer({
     },
 });
 
-const uploadVideoRouter = express.Router();
+const colmapRouter = express.Router();
 
-uploadVideoRouter.post('/', upload.single('zip'), colmapController);
+colmapRouter.post('/', upload.single('zip'), colmapController);
 
-export default uploadVideoRouter;
+export default colmapRouter;
