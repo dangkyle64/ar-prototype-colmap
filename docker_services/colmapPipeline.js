@@ -55,4 +55,3 @@ export const runPipeline = async () => {
         console.error('Error running COLMAP pipeline:', err);
     }
 };
-  
