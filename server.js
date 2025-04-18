@@ -32,6 +32,17 @@ app.use(express.static('public'));
 
 app.use('/colmap-api', colmapRouter);
 
+/*
+app.get('/', async (request, response) => {
+    try {
+        await runPipeline();
+        response.status(200).json({ message: 'Pipeline COLMAP successful '});
+    } catch(error) {
+        response.status(500).json({ error: 'Error loading pipeline' });
+    };
+});
+*/
+
 const port = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV !== 'production') {
