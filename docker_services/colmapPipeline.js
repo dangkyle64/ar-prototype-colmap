@@ -46,7 +46,7 @@ export const runPipeline = async () => {
             '--workspace_path', '/workspace/dense',
             '--workspace_format', 'COLMAP',
             '--input_type', 'photometric',
-            '--output_path', '/workspace/fused.ply'
+            '--output_path', '/workspace/fused_output/fused.ply'
         ]);
     
         console.log('🎉 COLMAP pipeline complete!');

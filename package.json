@@ -6,6 +6,8 @@
         "ngrok": "ngrok http 5000"
     },
     "dependencies": {
+        "archiver": "^7.0.1",
+        "axios": "^1.8.4",
         "cors": "^2.8.5",
         "dotenv": "^16.5.0",
         "express": "^5.1.0",

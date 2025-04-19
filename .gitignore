@@ -142,3 +142,4 @@ colmap_output/
 frames_output/
 plans.txt
 images.zip
+zipped_fused_output/
