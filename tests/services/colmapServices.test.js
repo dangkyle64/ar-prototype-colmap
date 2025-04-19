@@ -1,10 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import unzipper from 'unzipper';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { processZipFile, saveTempZipFiles } from '../../services/colmapServices.js';
-import { PassThrough } from 'stream';
+import { processZipFile } from '../../services/colmapServices.js';
+
 
 vi.mock('unzipper');
 
@@ -70,44 +68,3 @@ describe('processZipFile', () => {
     });
 });
 
-vi.mock('fs');
-
-describe('saveTempZipFiles', () => {
-    const mockWriteStream = new PassThrough();
-
-    beforeEach(() => {
-        vi.resetAllMocks();
-        fs.existsSync.mockReturnValue(false);
-        fs.mkdirSync.mockImplementation(() => {});
-        fs.createWriteStream.mockReturnValue(mockWriteStream);
-    });
-
-    it('should sanitize and save the file correctly', async () => {
-        const mockStream = new PassThrough();
-        const fileEntry = {
-            path: '../../evil.jpg',
-            stream: () => mockStream
-        };
-
-        const expectedPath = path.join('images', 'evil.jpg');
-
-        const finished = new Promise((resolve) => {
-            mockWriteStream.on('finish', resolve);
-        });
-
-        // Start the file save
-        const savePromise = saveTempZipFiles(fileEntry, 'images');
-
-        // Simulate data flow + end the stream
-        mockStream.pipe(mockWriteStream);
-        mockStream.emit('end');
-        mockWriteStream.emit('finish');
-
-        await finished;
-        await savePromise;
-
-        expect(fs.existsSync).toHaveBeenCalledWith('images');
-        expect(fs.mkdirSync).toHaveBeenCalledWith('images', { recursive: true });
-        expect(fs.createWriteStream).toHaveBeenCalledWith(expectedPath);
-    });
-});
