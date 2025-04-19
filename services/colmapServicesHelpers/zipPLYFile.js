@@ -21,7 +21,7 @@ export const zipPlyDirectory = (sourceDir, outputPath) => {
 
         output.on('close', () => {
 
-            const apiUrl = 'https://7d52-172-88-117-116.ngrok-free.app/colmap-api'; // TEMPORARY
+            const apiUrl = 'http://localhost:3000/api/ply-upload'; // TEMPORARY
 
             console.log(`ZIP complete.`);
             uploadZippedDirectory(outputPath, apiUrl)
