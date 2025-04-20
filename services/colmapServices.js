@@ -7,27 +7,28 @@ import { zipPlyDirectory } from './colmapServicesHelpers/zipPLYFile.js';
 
 export const processZipFile = async (buffer) => {
     try {
+        
         const directory = await unzipper.Open.buffer(buffer);
         
         if (directory.files.length === 0) {
             return { status: 400, error: 'Uploaded ZIP is empty '};
         };
-        /*
+        
         for (const fileEntry of directory.files) {
             if (fileEntry.type === 'File') {
                 await saveTempZipFiles(fileEntry);
             };
         };
 
-        await runPipeline();
+        //await runPipeline();
 
-        deleteTempImages('images');
-        */
-        await zipPlyDirectory(
-            path.resolve('./colmap_output/fused_output'),
-            path.resolve('./zipped_fused_output/fused.zip')
-        );
-
+        //deleteTempImages('images');
+        
+        //await zipPlyDirectory(
+        //    path.resolve('./colmap_output/fused_output'),
+        //    path.resolve('./zipped_fused_output/fused.zip')
+        //);
+        
         return { status: 200, message: 'ZIP processed successfully' };
     } catch(error) {
         console.log(error);
