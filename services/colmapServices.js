@@ -20,14 +20,14 @@ export const processZipFile = async (buffer) => {
             };
         };
 
-        //await runPipeline();
+        await runPipeline();
 
-        //deleteTempImages('images');
+        deleteTempImages('images');
         
-        //await zipPlyDirectory(
-        //    path.resolve('./colmap_output/fused_output'),
-        //    path.resolve('./zipped_fused_output/fused.zip')
-        //);
+        await zipPlyDirectory(
+            path.resolve('./colmap_output/fused_output'),
+            path.resolve('./zipped_fused_output/fused.zip')
+        );
         
         return { status: 200, message: 'ZIP processed successfully' };
     } catch(error) {
