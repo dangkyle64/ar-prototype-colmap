@@ -1,4 +1,6 @@
 import archiver from 'archiver';
+import fs from 'fs';
+import path from 'path';
 import { handleArchiveError } from './handleArchiveError.js';
 
 export const createZipArchive = (sourceDir, reject, output) => {
@@ -11,7 +13,17 @@ export const createZipArchive = (sourceDir, reject, output) => {
 
     archive.pipe(output);
     archive.on('error', handleArchiveError(reject));
-    archive.directory(sourceDir, false);
+
+    fs.readdirSync(sourceDir).forEach(file => {
+        const fullPath = path.join(sourceDir, file);
+
+        if (file.endsWith('.ply.vis')) {
+            return;
+        };  
+
+        archive.file(fullPath, { name: file });
+    });
+
     archive.finalize();
 };
 

@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PassThrough } from 'stream';
-import archiver from 'archiver';
-
 import { createZipArchive } from '../../../services/colmapServicesHelpers/zipPLYFileHelpers/createZipArchive.js';
 import { handleArchiveError } from '../../../services/colmapServicesHelpers/zipPLYFileHelpers/handleArchiveError.js';
+
+import archiver from 'archiver';
+import fs from 'fs';
+
 
 vi.mock('../../../services/colmapServicesHelpers/zipPLYFileHelpers/handleArchiveError.js', () => ({
     handleArchiveError: vi.fn()
@@ -11,6 +13,12 @@ vi.mock('../../../services/colmapServicesHelpers/zipPLYFileHelpers/handleArchive
 
 vi.mock('archiver', () => ({
     default: vi.fn()
+}));
+
+vi.mock('fs', () => ({
+    default: {
+        readdirSync: vi.fn(),
+    },
 }));
 
 describe('createZipArchive', () => {
@@ -23,13 +31,18 @@ describe('createZipArchive', () => {
         rejectMock = vi.fn();
 
         archiveMock = {
-        pipe: vi.fn(),
-        on: vi.fn(),
-        directory: vi.fn(),
-        finalize: vi.fn()
+            pipe: vi.fn(),
+            on: vi.fn(),
+            file: vi.fn(),
+            finalize: vi.fn()
         };
 
         archiver.mockReturnValue(archiveMock);
+
+        fs.readdirSync.mockReturnValue([
+            'fused.ply',
+            'fused.ply.vis',
+        ]);
     });
 
     it('should correctly create and finalize a zip archive', () => {
@@ -37,7 +50,7 @@ describe('createZipArchive', () => {
 
         expect(archiver).toHaveBeenCalledWith('zip', { zlib: { level: 9 } });
         expect(archiveMock.pipe).toHaveBeenCalledWith(outputStream);
-        expect(archiveMock.directory).toHaveBeenCalledWith('/some/dir', false);
+        expect(archiveMock.file).toHaveBeenCalled();
         expect(archiveMock.finalize).toHaveBeenCalled();
     });
 
@@ -91,13 +104,13 @@ describe('createZipArchive', () => {
     
         createZipArchive('/some/dir', rejectMock, outputStream);
     
-        expect(archiveMock.directory).not.toHaveBeenCalled();
+        expect(archiveMock.file).not.toHaveBeenCalled();
         expect(archiveMock.finalize).not.toHaveBeenCalled();
     });
     
     it('should initialize archiver with correct compression settings', () => {
         createZipArchive('/some/dir', rejectMock, outputStream);
-    
+
         expect(archiver).toHaveBeenCalledWith('zip', { zlib: { level: 9 } });
     });
 });

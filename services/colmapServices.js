@@ -24,11 +24,12 @@ export const processZipFile = async (buffer) => {
 
         deleteTempImages('images');
         
+        console.log('It made it to zipPlyDirectory');
         await zipPlyDirectory(
             path.resolve('./colmap_output/fused_output'),
             path.resolve('./zipped_fused_output/fused.zip')
         );
-        
+        console.log('It completed zipPlyDirectory');
         return { status: 200, message: 'ZIP processed successfully' };
     } catch(error) {
         console.log(error);

@@ -4,6 +4,7 @@ import FormData from 'form-data';
 
 export const uploadZippedDirectory = async (zipPath, apiUrl) => {
     const form = new FormData();
+    console.log('Uploading ZIP file at path:', zipPath);
     form.append('zip', fs.createReadStream(zipPath));
 
     try {
